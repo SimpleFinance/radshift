@@ -1,0 +1,26 @@
+# sequence diagram built on https://www.websequencediagrams.com/
+participant Client
+participant Radshift
+participant Redshift
+participant LinOTP
+
+Client->+Radshift: connect
+Radshift-->Client: prompt for username/OTP
+Client->Radshift: username/OTP
+Radshift->+LinOTP: check OTP using LinOTP
+LinOTP-->-Radshift: return success
+Radshift-->Client: return success
+Radshift->+Redshift: authenticate as superuser
+Radshift->Redshift: create/update "[...]_radshift" user
+Radshift->Redshift: set "[...]_radshift" password to random token
+Redshift-->-Radshift: return success
+
+Radshift->+Redshift: connect
+Redshift-->Radshift: prompt for username/password
+Radshift->Redshift: "[...]_radshift"/random token
+Redshift-->Radshift: return success
+
+Client->Radshift: query
+Radshift->Redshift: query (proxied)
+Redshift-->Radshift: result (proxied)
+Radshift-->Client: result
